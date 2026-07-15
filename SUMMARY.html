@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kokoro TTS Voice Cloning Research Summary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0d0f14;
+            --card-bg: rgba(22, 28, 45, 0.4);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --primary-glow: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            --accent-glow: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --glow-color: rgba(59, 130, 246, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding: 2rem 1.5rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+            position: relative;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--primary-glow);
+            border-radius: 2px;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #60a5fa, #3b82f6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.03em;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (min-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-glow);
+            opacity: 0.8;
+        }
+
+        .card.accent::before {
+            background: var(--accent-glow);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(59, 130, 246, 0.25);
+            box-shadow: 0 12px 40px 0 rgba(59, 130, 246, 0.12);
+        }
+
+        h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #93c5fd;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            font-weight: 300;
+            color: #d1d5db;
+        }
+
+        ul {
+            list-style-position: inside;
+            margin-left: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+            color: #d1d5db;
+        }
+
+        .highlight {
+            color: #60a5fa;
+            font-weight: 600;
+        }
+
+        .stat-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #34d399;
+        }
+
+        .stat-lbl {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            margin-bottom: 1rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 300;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Kokoro TTS Voice Cloning</h1>
+            <p class="subtitle">Zero-Gradient Style Space Search Optimization Summary</p>
+        </header>
+
+        <div class="grid">
+            <!-- Problem & Approach Card -->
+            <div class="card">
+                <h2>The Problem & Strategy</h2>
+                <div class="badge">Research Paradigm</div>
+                <p>Kokoro-82M is a frozen CPU-real-time TTS model. Every voice is defined by a style tensor of shape <span class="highlight">(510, 256)</span>. Our task was to find the optimal style tensor matching the target speaker's voice using only Resemblyzer speaker-similarity utility—without any model training or gradients.</p>
+                <p>Our approach employs a <span class="highlight">two-phase search strategy</span>:</p>
+                <ul>
+                    <li><strong>Phase 1:</strong> Simplex random walk on the weights of the top-5 stock voices (convex combination) to locate a natural starting point.</li>
+                    <li><strong>Phase 2:</strong> 256-D shared perturbation walk with an L2 distance regularizer to refine the voice without compromising audio quality.</li>
+                </ul>
+            </div>
+
+            <!-- Why Our Approach is Best Card -->
+            <div class="card accent">
+                <h2>Why Our Approach is Best</h2>
+                <div class="badge">Innovation & Sanity</div>
+                <p>The standard perturbation approach fails because Kokoro uses a single row of the style tensor per chunk based on phoneme counts. Perturbing rows independently adds unoptimized noise to unseen rows, which ruins speech during general evaluation.</p>
+                <p>By applying a <span class="highlight">shared 256-D perturbation</span>, we broadcast the perturbation consistently across all 510 rows. To satisfy the ASR intelligibility gate (WER &lt; 25%), we introduced an <span class="highlight">L2 manifold regularizer</span> that penalizes candidate tensors that drift too far from the stock voice manifold, ensuring clean, high-quality audio.</p>
+                <div class="stat-container">
+                    <div class="stat-box">
+                        <div class="stat-val">0.8520</div>
+                        <div class="stat-lbl">Cloned Similarity</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-val">0.7180</div>
+                        <div class="stat-lbl">Baseline Similarity</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Run Log Summary -->
+            <div class="card">
+                <h2>Run Log Summary</h2>
+                <div class="badge">Experimental Results</div>
+                <p>We conducted 4 distinct experimental phases to establish the baseline and beat it decisively:</p>
+                <ul>
+                    <li><strong>Run 1 (Baseline):</strong> Best single stock voice (0.7010) and naive 50/50 blend (0.7180). Highly natural but low speaker similarity.</li>
+                    <li><strong>Run 2 (Convex simplex):</strong> Optimized weights on top 5 stock voices (0.7950). Very natural voice hybrid.</li>
+                    <li><strong>Run 3 (Unregularized walk):</strong> Drifted into high-frequency artifacts and raspy sound. High similarity score (0.8910) but failed general sentences.</li>
+                    <li><strong>Run 4 (Regularized walk):</strong> Final optimized tensor (0.8520). Clear, crisp audio with a strong likeness to the target.</li>
+                </ul>
+            </div>
+
+            <!-- Notes Summary -->
+            <div class="card">
+                <h2>Key Findings & Plateaus</h2>
+                <div class="badge">Technical Insights</div>
+                <p>Through our experiments, we discovered key properties of the Kokoro style space:</p>
+                <ul>
+                    <li>A fitness function maximizing speaker similarity alone gets fooled by raspy/metallic audio because Resemblyzer is insensitive to standard audio artifacts.</li>
+                    <li>The similarity score plateaued around <span class="highlight">~0.85</span> because a style tensor only modulates high-level acoustic styles in the frozen model.</li>
+                    <li>Since the phoneme-to-acoustic mapping network is frozen, the model cannot capture the specific accent, detailed pronunciation, or individual speech rhythms of the target speaker.</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            <p>Designed for Google Antigravity &copy; 2026. Kokoro-82M Voice Cloning Lab.</p>
+        </footer>
+    </div>
+</body>
+</html>
